@@ -48,19 +48,21 @@ static const struct option options[] =
     { "trcidr12", 1, 0, '2' },
     { "trcidr13", 1, 0, '3' },
     { "decode-etmv4", 0, 0, 'e' },
+    { "unformatted", 0, 0, 'n' },
     { "debuglog", 0, 0, 'd' },
     { "help", 0, 0, 'h' },
     { NULL, 0, 0, 0   },
 };
 
-static const char *optstring = "i:c:Cp0:8:9:2:3:edhu";
+static const char *optstring = "i:c:Cp0:8:9:2:3:edhun";
 
 void usage(void)
 {
     printf("Usage: ptm2human [options] -i /TRACE/FILE/PATH\n");
     printf("Options:\n");
     printf("  -i|--input <trace file>                 Give the trace file\n");
-    printf("  -u|--unaligned                          Trace is unaligned and needs to be aligned by frame synchronization packet\n\n");
+    printf("  -u|--unaligned                          Trace is unaligned and needs to be aligned by frame synchronization packet\n");
+    printf("  -n|--unformatted                        Trace is not encapsulated in TPIU formatting\n\n");
     printf("  -p|--decode-ptm (default option)        Decode PTM trace\n");
     printf("  -c|--context <context ID size>          Give the size of ContextID for PTM trace only\n");
     printf("  -C|--cycle-accurate                     Enable Cycle-Accurate for PTM trace only\n\n");
@@ -112,6 +114,7 @@ int main(int argc, char **argv)
     unsigned int trcidr12 = 0, trcidr13 = 0;
     const char *input_file = NULL;
     int unaligned = 0;
+    int unformatted = 0;
     struct stream stream;
     struct stat sb;
 
@@ -132,6 +135,9 @@ int main(int argc, char **argv)
             break;
         case 'u':
             unaligned = 1;
+            break;
+        case 'n':
+            unformatted = 1;
             break;
 
         case 'c':
@@ -282,7 +288,11 @@ int main(int argc, char **argv)
 
     file2buff(input_file, stream.buff, stream.buff_len);
 
-    ret = decode_etb_stream(&stream, unaligned);
+    if (!unformatted) {
+        ret = decode_etb_stream(&stream, unaligned);
+    } else {
+        ret = decode_stream(&stream);
+    }
 
     free((void *)stream.buff);
 
