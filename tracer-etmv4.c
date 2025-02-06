@@ -51,10 +51,40 @@ static const char *cond_result_token_pass_fail[] =
     "don't know the result of the condition code check"
 };
 
-static const char *exp_name[32] = { "PE reset", "Debug halt", "Call", "Trap",
-                                    "System error", NULL, "Inst debug", "Data debug",
-                                    NULL, NULL, "Alignment", "Inst fault",
-                                    "Data fault", NULL, "IRQ", "FIQ" };
+static const char *exp_name[32] = {
+    /* 0b0000000000 */ NULL,
+    /* 0b0000000001 */ "PE reset",
+    /* 0b0000000010 */ "NMI",
+    /* 0b0000000011 */ "HardFault",
+    /* 0b0000000100 */ "MemManage",
+    /* 0b0000000101 */ "BusFault",
+    /* 0b0000000110 */ "UsageFault",
+    /* 0b0000000111 */ "SecureFault",
+    /* 0b0000001000 */ NULL,
+    /* 0b0000001001 */ NULL,
+    /* 0b0000001010 */ NULL,
+    /* 0b0000001011 */ "SVC",
+    /* 0b0000001100 */ "Debug Monitor",
+    /* 0b0000001101 */ NULL,
+    /* 0b0000001110 */ "PendSV",
+    /* 0b0000001111 */ "SysTick",
+    /* 0b0000010000 */ "IRQ0",
+    /* 0b0000010001 */ "IRQ1",
+    /* 0b0000010010 */ "IRQ2",
+    /* 0b0000010011 */ "IRQ3",
+    /* 0b0000010100 */ "IRQ4",
+    /* 0b0000010101 */ "IRQ5",
+    /* 0b0000010110 */ "IRQ6",
+    /* 0b0000010111 */ "IRQ7",
+    /* 0b0000011000 */ "Debug halt",
+    /* 0b0000011001 */ "Lazy FP push",
+    /* 0b0000011010 */ "Lockup",
+    /* 0b0000011011 */ NULL,
+    /* 0b0000011100 */ NULL,
+    /* 0b0000011101 */ NULL,
+    /* 0b0000011110 */ NULL,
+    /* 0b0000011111 */ NULL,
+};
 
 void tracer_trace_info(void *t, unsigned int plctl, unsigned int info,\
                        unsigned int key, unsigned int spec, unsigned int cyct)
@@ -124,7 +154,11 @@ void tracer_exception(void *t, int type)
 {
     struct etmv4_tracer *tracer = (struct etmv4_tracer *)t;
 
-    OUTPUT("Exception - exception type %s, address 0x%016llx\n", (type < 32 && exp_name[type])? exp_name[type]: "Reserved", ADDRESS_REGISTER(tracer)[0].address);
+    if ((type >= 0x208) && (type <= 0x3EF)) {
+        OUTPUT("Exception - exception type IRQ%d, address 0x%016llx\n", type-0x200, ADDRESS_REGISTER(tracer)[0].address);
+    } else {
+        OUTPUT("Exception - exception type %s, address 0x%016llx\n", (type < 32 && exp_name[type])? exp_name[type]: "Reserved", ADDRESS_REGISTER(tracer)[0].address);
+    }
 
     tracer_cond_flush(tracer);
 
