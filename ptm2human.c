@@ -123,6 +123,20 @@ int main(int argc, char **argv)
 
     memset(&stream, 0, sizeof(struct stream));
 
+#if 1
+    /* Preset for RP2350 / ARM Cortex M33, based on TRCIDRn registers. */
+    /* TRCIDR0 */
+    CONDTYPE(&(stream.tracer)) = (0x280006e1ul & 0x00003000ul) >> 12;
+    COMMOPT(&(stream.tracer))  = (0x280006e1ul & 0x20000000ul) >> 29;
+    /* TRCIDR8 */
+    MAX_SPEC_DEPTH(&(stream.tracer)) = 0;
+    /* TRCIDR9 */
+    P0_KEY_MAX(&(stream.tracer)) = 0;
+    /* TRCIDR12-13 */
+    trcidr12 = 1;
+    trcidr13 = 0;
+#endif
+
     for (;;) {
         c = getopt_long(argc, argv, optstring, options, &longindex);
         if (c == -1) {
