@@ -1328,7 +1328,7 @@ struct tracepkt *etmv4pkts[] =
 
 int etmv4_synchronization(struct stream *stream)
 {
-    int i, p;
+    int i, p, j;
     unsigned char c;
 
     LOGD("MAX_SPEC_DEPTH = %d\n", MAX_SPEC_DEPTH(&(stream->tracer)));
@@ -1344,16 +1344,18 @@ int etmv4_synchronization(struct stream *stream)
             p = DECODE_FUNC_NAME(extension)((const unsigned char *)&(stream->buff[i]), stream);
             if (p != 12)
                 continue;
-            c = stream->buff[i + 12];
-            if ((c & PKT_NAME(trace_info).mask) == PKT_NAME(trace_info).val) {
-                p = DECODE_FUNC_NAME(trace_info)((const unsigned char *)&(stream->buff[i + 12]), stream);
-                if (p > 0) {
-                    /* SYNCING -> INSYNC */
-                    stream->state++;
+            for (j=12; j<16; j++) {
+                c = stream->buff[i + j];
+                if ((c & PKT_NAME(trace_info).mask) == PKT_NAME(trace_info).val) {
+                    p = DECODE_FUNC_NAME(trace_info)((const unsigned char *)&(stream->buff[i + j]), stream);
+                    if (p > 0) {
+                        /* SYNCING -> INSYNC */
+                        stream->state++;
 
-                    RESET_ADDRESS_REGISTER(&(stream->tracer));
+                        RESET_ADDRESS_REGISTER(&(stream->tracer));
 
-                    return i;
+                        return i+j;
+                    }
                 }
             }
 
