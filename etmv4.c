@@ -324,7 +324,7 @@ DECL_DECODE_FN(exception)
 DECL_DECODE_FN(cc_format_1)
 {
     int index = 0, i;
-    int u_bit = pkt[index++];
+    int u_bit = pkt[index++] & 1;
     unsigned char data;
     unsigned int commit = 0, count = 0;
 
