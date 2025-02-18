@@ -285,7 +285,7 @@ DECL_DECODE_FN(exception)
             data2 = pkt[index++];
         }
         EE = ((data1 & 0x40) >> 5) | (data1 & 0x01);
-        TYPE = ((data1 & 0x3E) >> 1) | (data2 & 0x1F);
+        TYPE = ((data1 & 0x3E) >> 1) | ((data2 & 0x1F) << 5);
         P = (data2 & 0x20) >> 5;
 
         LOGD("[exception] E1:E0 = %d, TYPE = 0x%02X, P = %d\n", EE, TYPE, P);
