@@ -293,7 +293,7 @@ DECL_DECODE_FN(exception)
         if (EE != 1 && EE != 2) {
             LOGE("Invalid EE in the exception packet\n");
             return -1;
-        } else if (EE == 2) {
+        } else /* if (EE == 2) */ {
             /* there is an address packet */
             data1 = pkt[index];
             for (i = 0; tracepkts[i]; i++) {
